@@ -154,3 +154,56 @@ pub const MemoryProtectionUnit = extern struct {
         padding: u4,
     });
 };
+
+pub const DebugRegisters = extern struct {
+    /// Debyg Halting Control and Status Register
+    DHCSR: mmio.Mmio(packed struct {
+        _reserved_0: u6,
+        S_RESET_ST: u1,
+        S_RETIRE_ST: u1,
+        _reserved_1: u4,
+        S_LOCKUP: u1,
+        S_SLEEP: u1,
+        S_HALT: u1,
+        S_REGRDY: u1,
+        _reserved_2: u10,
+        C_SNAPSTALL: u1,
+        _reserved_3: u1,
+        C_MASKINTS: u1,
+        C_STEP: u1,
+        C_HALT: u1,
+        C_DEBUGEN: u1,
+    }),
+    /// Debug Core Register Selector Register
+    /// TODO: Reserved have values ? see armv7-m reference manual
+    DCRSR: mmio.Mmio(packed struct {
+        _reserved_0: u15,
+        REGWnR: u1,
+        _reserved_1: u9,
+        REGSEL: u7,
+    }),
+    /// Debug Core Register Data Register
+    DCRDR: mmio.Mmio(packed struct {
+        DBGTMP: u32,
+    }),
+    /// Debug exception and Monitor Control Register
+    DEMCR: mmio.Mmio(packed struct {
+        _reserved_0: u7,
+        TRCENA: u1,
+        _reserved_1: u4,
+        MON_REQ: u1,
+        MON_STEP: u1,
+        MON_PEND: u1,
+        MON_EN: u1,
+        _reserved_2: u5,
+        VC_HARDERR: u1,
+        VC_INTERR: u1,
+        VC_BUSERR: u1,
+        VC_STATERR: u1,
+        VC_CHKERR: u1,
+        VC_NOCPERR: u1,
+        VC_MMERR: u1,
+        _reserved_3: u3,
+        VC_CORERESET: u1,
+    }),
+};

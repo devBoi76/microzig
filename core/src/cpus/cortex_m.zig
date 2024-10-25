@@ -44,6 +44,10 @@ pub const mpu: *volatile core.MemoryProtectionUnit = if (mpu_present)
 else
     @compileError("Cortex-M does not have an MPU");
 
+/// Debug Registers (Debug)
+/// TODO: Check if debug present
+pub const dbg: *volatile core.DebugRegisters = @ptrFromInt(coredebug_base);
+
 pub fn executing_isr() bool {
     return scb.ICSR.read().VECTACTIVE != 0;
 }

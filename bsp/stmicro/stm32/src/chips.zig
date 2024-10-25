@@ -7947,6 +7947,9 @@ pub const STM32F746NG = MicroZig.Target{
             .zig = .{ .cwd_relative = register_definition_path },
         },
     },
+    .hal = .{
+        .root_source_file = .{ .cwd_relative = build_root ++ "/hals/STM32F746NG/hal.zig" },
+    },
 };
 
 pub const STM32F746VE = MicroZig.Target{

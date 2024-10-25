@@ -445,6 +445,15 @@ fn generate_chips_file(writer: anytype, chip_files: []const std.json.Parsed(Chip
                 ,
             );
         }
+        if (std.mem.startsWith(u8, chip_file.name, "STM32F746")) {
+            try writer.writeAll(
+                \\    .hal = .{
+                \\        .root_source_file = .{ .cwd_relative = build_root ++ "/hals/STM32F746NG/hal.zig" },
+                \\    },
+                \\
+                ,
+            );
+        }
 
         try writer.writeAll(
             \\};
