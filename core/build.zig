@@ -12,7 +12,15 @@ const build_root = root();
 
 /// This build script validates usage patterns we expect from MicroZig
 pub fn build(b: *std.Build) !void {
-    _ = b;
+    const unit_tests = b.addTest(.{
+        // We're not using the `start.zig` entrypoint as it overrides too much
+        // configuration
+        .root_source_file = b.path("src/microzig.zig"),
+    });
+
+    const run_unit_tests = b.addRunArtifact(unit_tests);
+
+    b.getInstallStep().dependOn(&run_unit_tests.step);
 }
 
 pub const cpus = struct {
@@ -60,6 +68,29 @@ pub const cpus = struct {
         },
     };
 
+    pub const cortex_m33 = MicroZig.Cpu{
+        .name = "ARM Cortex-M33",
+        .root_source_file = .{ .cwd_relative = build_root ++ "/src/cpus/cortex_m.zig" },
+        .target = std.Target.Query{
+            .cpu_arch = .thumb,
+            .cpu_model = .{ .explicit = &std.Target.arm.cpu.cortex_m33 },
+            .os_tag = .freestanding,
+            .abi = .eabi,
+        },
+    };
+
+    pub const cortex_m33f = MicroZig.Cpu{
+        .name = "ARM Cortex-M33F",
+        .root_source_file = .{ .cwd_relative = build_root ++ "/src/cpus/cortex_m.zig" },
+        .target = std.Target.Query{
+            .cpu_arch = .thumb,
+            .cpu_model = .{ .explicit = &std.Target.arm.cpu.cortex_m33 },
+            .cpu_features_add = std.Target.arm.featureSet(&.{.vfp4d16sp}),
+            .os_tag = .freestanding,
+            .abi = .eabihf,
+        },
+    };
+
     pub const cortex_m4 = MicroZig.Cpu{
         .name = "ARM Cortex-M4",
         .root_source_file = .{ .cwd_relative = build_root ++ "/src/cpus/cortex_m.zig" },
@@ -90,21 +121,20 @@ pub const cpus = struct {
             .cpu_arch = .thumb,
             .cpu_model = .{ .explicit = &std.Target.arm.cpu.cortex_m7 },
             .os_tag = .freestanding,
-            .abi = .eabihf,
+            .abi = .eabi,
         },
     };
-
-    pub const cortex_m33 = MicroZig.Cpu{
-        .name = "ARM Cortex-M7",
+    pub const cortex_m7f = MicroZig.Cpu{
+        .name = "ARM Cortex-M7F",
         .root_source_file = .{ .cwd_relative = build_root ++ "/src/cpus/cortex_m.zig" },
         .target = std.zig.CrossTarget{
             .cpu_arch = .thumb,
-            .cpu_model = .{ .explicit = &std.Target.arm.cpu.cortex_m33 },
+            .cpu_model = .{ .explicit = &std.Target.arm.cpu.cortex_m7 },
+            .cpu_features_add = std.Target.arm.featureSet(&.{.fp_armv8d16sp}),
             .os_tag = .freestanding,
             .abi = .eabihf,
         },
     };
-
     pub const riscv32_imac = MicroZig.Cpu{
         .name = "RISC-V 32-bit",
         .root_source_file = .{ .cwd_relative = build_root ++ "/src/cpus/riscv32.zig" },
