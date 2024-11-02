@@ -19,16 +19,18 @@ const Core = enum {
     @"ARM Cortex-M3",
     @"ARM Cortex-M33",
     @"ARM Cortex-M4",
+    @"ARM Cortex-M7F",
 };
 
 const core: type = blk: {
-    const cortex_m = std.meta.stringToEnum(microzig.config.cpu_name) orelse @panic(std.fmt.comptimePrint("Unrecognized Cortex-M core name: {s}", .{microzig.config.cpu_name}));
+    const cortex_m = std.meta.stringToEnum(Core, microzig.config.cpu_name) orelse @compileError(std.fmt.comptimePrint("Unrecognized Cortex-M core name: {s}", .{microzig.config.cpu_name}));
     break :blk switch (cortex_m) {
         .@"ARM Cortex-M0" => @import("cortex_m/m0"),
         .@"ARM Cortex-M0+" => @import("cortex_m/m0plus.zig"),
         .@"ARM Cortex-M3" => @import("cortex_m/m3.zig"),
         .@"ARM Cortex-M33" => @import("cortex_m/m33.zig"),
         .@"ARM Cortex-M4" => @import("cortex_m/m4.zig"),
+        .@"ARM Cortex-M7F" => @import("cortex_m/m7.zig"),
     };
 };
 
