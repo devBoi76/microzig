@@ -168,3 +168,39 @@ pub const MemoryProtectionUnit = extern struct {
 };
 
 pub const DebugRegisters = @import("m4.zig").DebugRegisters;
+
+pub const ITM = extern struct {
+    /// TODO: Figure out the actual amount of stim ports
+    ITM_STIM: [256]mmio.Mmio(packed union {
+        WRITE_U8: u8,
+        WRITE_U16: u16,
+        WRITE_U32: u32,
+        READ: packed struct(u32) {
+            _reserved: u31,
+            FIFOREADY: u1,
+        },
+    }),
+    _padding0: [2566]u8,
+    ITM_TER: [8]mmio.Mmio(packed struct(u32) {
+        STIMENA: u32,
+    }),
+    _padding1: [40]u8,
+    ITM_TPR: mmio.Mmio(packed struct(u32) {
+        PRIVMASK: u32,
+    }),
+    _padding2: [64]u8,
+    ITM_TCR: mmio.Mmio(packed struct(u32) {
+        _reserved0: u8,
+        BUSY: u1,
+        TraceBusID: u7,
+        _reserved1: u4,
+        GTSFREQ: u2,
+        TSPrescale: u2,
+        _reserved2: u3,
+        SWOENA: u1,
+        TXENA: u1,
+        SYNCENA: u1,
+        TSENA: u1,
+        ITMENA: u1,
+    }),
+};

@@ -7857,6 +7857,9 @@ pub const STM32F746BE = MicroZig.Target{
             .zig = .{ .cwd_relative = register_definition_path },
         },
     },
+    .hal = .{
+        .root_source_file = .{ .cwd_relative = build_root ++ "/hals/STM32F746NG/hal.zig" },
+    },
 };
 
 pub const STM32F746BG = MicroZig.Target{
@@ -7874,6 +7877,9 @@ pub const STM32F746BG = MicroZig.Target{
         .register_definition = .{
             .zig = .{ .cwd_relative = register_definition_path },
         },
+    },
+    .hal = .{
+        .root_source_file = .{ .cwd_relative = build_root ++ "/hals/STM32F746NG/hal.zig" },
     },
 };
 
@@ -7893,6 +7899,9 @@ pub const STM32F746IE = MicroZig.Target{
             .zig = .{ .cwd_relative = register_definition_path },
         },
     },
+    .hal = .{
+        .root_source_file = .{ .cwd_relative = build_root ++ "/hals/STM32F746NG/hal.zig" },
+    },
 };
 
 pub const STM32F746IG = MicroZig.Target{
@@ -7911,6 +7920,9 @@ pub const STM32F746IG = MicroZig.Target{
             .zig = .{ .cwd_relative = register_definition_path },
         },
     },
+    .hal = .{
+        .root_source_file = .{ .cwd_relative = build_root ++ "/hals/STM32F746NG/hal.zig" },
+    },
 };
 
 pub const STM32F746NE = MicroZig.Target{
@@ -7928,6 +7940,9 @@ pub const STM32F746NE = MicroZig.Target{
         .register_definition = .{
             .zig = .{ .cwd_relative = register_definition_path },
         },
+    },
+    .hal = .{
+        .root_source_file = .{ .cwd_relative = build_root ++ "/hals/STM32F746NG/hal.zig" },
     },
 };
 
@@ -7968,6 +7983,9 @@ pub const STM32F746VE = MicroZig.Target{
             .zig = .{ .cwd_relative = register_definition_path },
         },
     },
+    .hal = .{
+        .root_source_file = .{ .cwd_relative = build_root ++ "/hals/STM32F746NG/hal.zig" },
+    },
 };
 
 pub const STM32F746VG = MicroZig.Target{
@@ -7985,6 +8003,9 @@ pub const STM32F746VG = MicroZig.Target{
         .register_definition = .{
             .zig = .{ .cwd_relative = register_definition_path },
         },
+    },
+    .hal = .{
+        .root_source_file = .{ .cwd_relative = build_root ++ "/hals/STM32F746NG/hal.zig" },
     },
 };
 
@@ -8004,6 +8025,9 @@ pub const STM32F746ZE = MicroZig.Target{
             .zig = .{ .cwd_relative = register_definition_path },
         },
     },
+    .hal = .{
+        .root_source_file = .{ .cwd_relative = build_root ++ "/hals/STM32F746NG/hal.zig" },
+    },
 };
 
 pub const STM32F746ZG = MicroZig.Target{
@@ -8021,6 +8045,9 @@ pub const STM32F746ZG = MicroZig.Target{
         .register_definition = .{
             .zig = .{ .cwd_relative = register_definition_path },
         },
+    },
+    .hal = .{
+        .root_source_file = .{ .cwd_relative = build_root ++ "/hals/STM32F746NG/hal.zig" },
     },
 };
 

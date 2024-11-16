@@ -54,7 +54,8 @@ pub const Advanced = struct {
             });
             // PWM mode 1
             regs.CCMR_Input[0].modify(.{
-                .ICF = 0b0110,
+                // TODO: switch to enum
+                .ICF = .{.raw = 0b0110 },
                 .ICPSC = 0b10,
             });
             regs_core.CR1.modify(.{
