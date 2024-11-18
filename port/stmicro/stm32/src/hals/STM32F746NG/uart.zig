@@ -3,6 +3,7 @@ const microzig = @import("microzig");
 pub const peripherals = microzig.chip.peripherals;
 
 const gpio = @import("gpio.zig");
+const clock = @import("clock.zig");
 
 const UartRegs = @TypeOf(peripherals.USART1);
 
