@@ -79,6 +79,6 @@ pub fn set_enabled(adc: ADC, channel: ADCChannel, enable: bool) void {
 pub fn convert(adc: ADC) u16 {
     const regs = adc.get_regs();
     regs.CR2.modify(.{ .SWSTART = 1 });
-    // while (mem.SR.read().EOC == 0) {}
+    while (regs.SR.read().EOC == 0) {}
     return regs.DR.read().DATA;
 }
