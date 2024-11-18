@@ -168,39 +168,82 @@ pub const MemoryProtectionUnit = extern struct {
 };
 
 pub const DebugRegisters = @import("m4.zig").DebugRegisters;
-
 pub const ITM = extern struct {
-    /// TODO: Figure out the actual amount of stim ports
-    ITM_STIM: [256]mmio.Mmio(packed union {
+    /// Stimulus Port Registers (0-255)
+    STIM: [256]mmio.Mmio(packed union {
         WRITE_U8: u8,
         WRITE_U16: u16,
         WRITE_U32: u32,
         READ: packed struct(u32) {
-            _reserved: u31,
             FIFOREADY: u1,
+            _reserved: u31,
         },
     }),
-    _padding0: [2566]u8,
-    ITM_TER: [8]mmio.Mmio(packed struct(u32) {
-        STIMENA: u32,
+
+    _reserved0: [640]u32, // Padding to 0xE00
+
+    /// Trace Enable Registers (0-7)
+    TER: [8]mmio.Mmio(packed struct(u32) {
+        STIMENA: u32, // Enable bits for stimulus ports
     }),
-    _padding1: [40]u8,
-    ITM_TPR: mmio.Mmio(packed struct(u32) {
-        PRIVMASK: u32,
+
+    _reserved1: [10]u32, // Padding to 0xE40
+
+    /// Trace Privilege Register
+    TPR: mmio.Mmio(packed struct(u32) {
+        PRIVMASK: u32, // Privilege mask for stimulus ports
     }),
-    _padding2: [64]u8,
-    ITM_TCR: mmio.Mmio(packed struct(u32) {
-        _reserved0: u8,
-        BUSY: u1,
-        TraceBusID: u7,
+
+    _reserved2: [15]u32, // Padding to 0xE80
+
+    /// Trace Control Register
+    TCR: mmio.Mmio(packed struct(u32) {
+        ITMENA: u1, // ITM enable
+        TSENA: u1, // Local timestamp enable
+        SYNCENA: u1, // Sync packet enable
+        TXENA: u1, // DWT packet forwarding enable
+        SWOENA: u1, // Async clock enable
+        _reserved0: u3,
+        TSPrescale: u2, // Local timestamp prescaler
+        GTSFREQ: u2, // Global timestamp frequency
         _reserved1: u4,
-        GTSFREQ: u2,
-        TSPrescale: u2,
-        _reserved2: u3,
-        SWOENA: u1,
-        TXENA: u1,
-        SYNCENA: u1,
-        TSENA: u1,
-        ITMENA: u1,
+        TraceBusID: u7, // Trace bus ID
+        BUSY: u1, // ITM busy flag
+        _reserved2: u8,
     }),
+};
+
+pub const TPIU = extern struct {
+    /// Supported Parallel Port Sizes Register
+    SSPSR: mmio.Mmio(packed struct(u32) {
+        SWIDTH: u32,
+    }),
+    /// Current Parallel Port Size Register
+    CSPSR: mmio.Mmio(packed struct(u32) {
+        CWIDTH: u32,
+    }),
+    _reserved0: [2]u32,
+    /// Asynchronous Clock Prescaler Register
+    ACPR: mmio.Mmio(packed struct(u32) {
+        SWOSCALER: u16,
+        _padding: u16,
+    }),
+    _reserved1: [55]u32,
+    /// Selected Pin Protocol Register
+    SPPR: mmio.Mmio(packed struct(u32) {
+        TXMODE: u2,
+        _padding: u30,
+    }),
+    _reserved2: [524]u32,
+    /// TPIU Type Register
+    TYPE: mmio.Mmio(packed struct(u32) {
+        _reserved0: u6,
+        FIFOSZ: u3,
+        PTINVALID: u1,
+        MANCVALID: u1,
+        NRZVALID: u1,
+        _implementation_defined0: u4,
+        _padding: u16,
+    }),
+    _reserved3: [13]u32,
 };

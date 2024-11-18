@@ -53,6 +53,7 @@ else
 pub const dbg: *volatile core.DebugRegisters = @ptrFromInt(coredebug_base);
 
 pub const itm: if (@hasDecl(core, "ITM")) (*volatile core.ITM) else (*volatile anyopaque) = @ptrFromInt(itm_base);
+pub const tpiu: if (@hasDecl(core, "TPIU")) (*volatile core.TPIU) else (*volatile anyopaque) = @ptrFromInt(tpi_base);
 
 pub fn executing_isr() bool {
     return scb.ICSR.read().VECTACTIVE != 0;
