@@ -64,6 +64,26 @@ pub fn enable_gpio(enable_in_low_power: bool) void {
     }
 }
 
+pub fn pin(comptime name: []const u8) Pin {
+    comptime var idx: usize = 0;
+    if (comptime name[idx] == 'P') idx += 1;
+    if (comptime !('A' <= name[idx] and name[idx] <= 'K')) {
+        @compileError("This board only supports GPIO(A..K). Found: " ++ name[idx]);
+    }
+    const port = name[idx] - 'A';
+    idx += 1;
+    const number = comptime std.fmt.parseInt(u4, name[idx..], 10) catch |err|
+        @compileError("Parse error: " ++ @errorName(err));
+
+    return .{ .port = port, .number = number };
+}
+
+// TODO: enable testing
+test pin {
+    std.testing.expectEqual(Pin.init(0, 0), pin("PA0"));
+    std.testing.expectEqual(Pin.init(10, 16), pin("PK16"));
+}
+
 // NOTE: With this current setup, every time we want to do anythting we go through a switch
 //       Do we want this?
 pub const Pin = packed struct(u8) {
