@@ -7,7 +7,7 @@ const clock = @import("clock.zig");
 
 const UartRegs = @TypeOf(peripherals.USART1);
 
-pub const UART = enum(u8) {
+pub const UART = enum(u3) {
     USART1 = 0,
     USART2,
     USART3,
@@ -22,16 +22,23 @@ pub const UART = enum(u8) {
             inline else => |nn| @field(peripherals, @tagName(nn)),
         };
     }
+
+    pub fn peripheral(n: UART) enum(u1) { APB1 = 0, APB2 } {
+        return switch (n) {
+            .USART1, .USART6 => .APB2,
+            else => .APB1,
+        };
+    }
     /// Note: check documentation for which pins can be used as UART pins
     pub fn init(n: UART, tx_pin: gpio.Pin, rx_pin: gpio.Pin, baud_rate: usize) UART {
         // enable all gpio
-        gpio.enable_gpio(true);
+        gpio.enableGPIO(true);
         // configure gpio for alternate function
-        tx_pin.set_mode(.alternate_function);
-        rx_pin.set_mode(.alternate_function);
+        tx_pin.setMode(.alternate_function);
+        rx_pin.setMode(.alternate_function);
         // common for all stm32f745xx and stm32f746xx
 
-        tx_pin.set_alternate_function(switch (n) {
+        tx_pin.setAlternateFunction(switch (n) {
             .USART1, .USART2, .USART3 => 7,
             .USART6, .UART4, .UART7, .UART8 => 8,
             .UART5 => switch (tx_pin.port) { // >:(
@@ -39,7 +46,7 @@ pub const UART = enum(u8) {
                 else => 8, // PC12, PD2,
             },
         });
-        rx_pin.set_alternate_function(switch (n) {
+        rx_pin.setAlternateFunction(switch (n) {
             .USART1, .USART2, .USART3 => 7,
             .USART6, .UART4, .UART7, .UART8 => 8,
             .UART5 => switch (rx_pin.port) { // >:(
@@ -69,8 +76,7 @@ pub const UART = enum(u8) {
     }
 
     pub fn setBaudRate(uart: UART, rate: usize) void {
-        // TODO: get automatically
-        const PCLK = 16_000_000;
+        const PCLK = clock.getUART(@intFromEnum(uart));
         // TODO: Verify baud rate
         uart.getRegs().BRR.modify(.{ .BRR = @as(u16, @intCast(PCLK / rate)) });
     }

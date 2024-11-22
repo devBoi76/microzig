@@ -49,7 +49,8 @@ pub const Pull = enum(u2) {
     down = 2,
 };
 
-pub inline fn set_reg_value(comptime T: type, reg: *volatile u32, val: T, offset: u4) void {
+/// Helper to set the correct bits in a register which configures an "array" of devices (i.e. GPIO)
+pub inline fn setRegValue(comptime T: type, reg: *volatile u32, val: T, offset: u4) void {
     const v = if (comptime @typeInfo(T) == .Enum) @intFromEnum(val) else val;
     const off: u5 = @as(u5, @intCast(offset)) * @bitSizeOf(T);
     reg.* &= ~(@as(u32, (2 << @bitSizeOf(T)) - 1) << off); // zero the bits
@@ -57,7 +58,7 @@ pub inline fn set_reg_value(comptime T: type, reg: *volatile u32, val: T, offset
 }
 
 /// Must be called to enable GPIO clock. Reference manual 5.3.10
-pub fn enable_gpio(enable_in_low_power: bool) void {
+pub fn enableGPIO(enable_in_low_power: bool) void {
     peripherals.RCC.AHB1ENR.raw |= 0x000007FF;
     if (enable_in_low_power) {
         peripherals.RCC.AHB1LPENR.raw |= 0x000007FF;
@@ -99,7 +100,7 @@ pub const Pin = packed struct(u8) {
 
     // NOTE: Im not sure I like this
     //       We could probably calculate an offset from GPIOA?
-    pub fn get_port(gpio: Pin) GPIO {
+    pub fn getPort(gpio: Pin) GPIO {
         return switch (gpio.port) {
             0 => GPIOA,
             1 => GPIOB,
@@ -120,41 +121,53 @@ pub const Pin = packed struct(u8) {
         return @as(u16, 1) << gpio.number;
     }
 
-    pub inline fn set_mode(gpio: Pin, mode: Mode) void {
-        const port = gpio.get_port();
-        set_reg_value(Mode, &port.MODER.raw, mode, gpio.number);
+    pub fn set(gpio: Pin, config: struct {
+        mode: ?Mode = null,
+        alternate_function: ?u4 = null,
+        pull: ?Pull = null,
+        output_type: ?OutputType = null,
+    }) void {
+        if (config.mode) |m| gpio.setMode(m);
+        if (config.alternate_function) |af| gpio.setAlternateFunction(af);
+        if (config.pull) |p| gpio.setPull(p);
+        if (config.output_type) |ot| gpio.setOutputType(ot);
     }
 
-    pub inline fn set_alternate_function(gpio: Pin, n: u4) void {
-        const regs = gpio.get_port();
+    pub fn setMode(gpio: Pin, mode: Mode) void {
+        const port = gpio.getPort();
+        setRegValue(Mode, &port.MODER.raw, mode, gpio.number);
+    }
+
+    pub fn setAlternateFunction(gpio: Pin, n: u4) void {
+        const regs = gpio.getPort();
         if (gpio.number < 8) {
-            set_reg_value(u4, &regs.AFR[0].raw, n, gpio.number);
+            setRegValue(u4, &regs.AFR[0].raw, n, gpio.number);
         } else {
-            set_reg_value(u4, &regs.AFR[1].raw, n, gpio.number - 8);
+            setRegValue(u4, &regs.AFR[1].raw, n, gpio.number - 8);
         }
     }
-    pub inline fn set_pull(gpio: Pin, pull: Pull) void {
-        set_reg_value(Pull, &gpio.get_port().PUPDR.raw, pull, gpio.number);
+    pub fn setPull(gpio: Pin, pull: Pull) void {
+        setRegValue(Pull, &gpio.getPort().PUPDR.raw, pull, gpio.number);
     }
 
-    pub inline fn set_output_type(gpio: Pin, output_type: OutputType) void {
-        set_reg_value(OutputType, &gpio.get_port().OTYPER, output_type, gpio.number);
+    pub fn setOutputType(gpio: Pin, output_type: OutputType) void {
+        setRegValue(OutputType, &gpio.getPort().OTYPER, output_type, gpio.number);
     }
 
-    pub inline fn read(gpio: Pin) u1 {
-        const port = gpio.get_port();
+    pub fn read(gpio: Pin) u1 {
+        const port = gpio.getPort();
         return @intFromBool(port.IDR.raw & gpio.mask() != 0);
     }
 
-    pub inline fn put(gpio: Pin, value: u1) void {
-        var port = gpio.get_port();
+    pub fn put(gpio: Pin, value: u1) void {
+        var port = gpio.getPort();
         switch (value) {
             0 => port.BSRR.raw = (@as(u32, 1) << gpio.number) << 16,
             1 => port.BSRR.raw = (@as(u32, 1) << gpio.number),
         }
     }
 
-    pub inline fn toggle(gpio: Pin) void {
+    pub fn toggle(gpio: Pin) void {
         gpio.put(~gpio.read());
         // var port = gpio.get_port();
         // port.ODR.raw ^= gpio.mask();

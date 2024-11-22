@@ -2,7 +2,7 @@ const microzig = @import("microzig");
 const peripherals = microzig.chip.peripherals;
 const gpio = @import("gpio.zig");
 
-pub fn enable_clocks() void {
+pub fn enableTimers() void {
     peripherals.RCC.APB1ENR.modify(.{
         .TIM2EN = 1,
         .TIM3EN = 1,
@@ -38,16 +38,16 @@ pub const Advanced = struct {
             .number = t,
         };
     }
-    pub fn get_regs(timer: Advanced) TIM {
+    pub fn getRegs(timer: Advanced) TIM {
         return switch (timer.number) {
             .TIM1 => TIM1,
             .TIM8 => TIM8,
         };
     }
     pub fn put(timer: Advanced, freq: u16, duty: u16, channel: u4) void {
-        const regs_core: *volatile microzig.chip.types.peripherals.timer_v1.TIM_CORE = @ptrCast(timer.get_regs());
+        const regs_core: *volatile microzig.chip.types.peripherals.timer_v1.TIM_CORE = @ptrCast(timer.getRegs());
         regs_core.ARR.modify(.{ .ARR = freq });
-        const regs = timer.get_regs();
+        const regs = timer.getRegs();
         if (channel < 4) {
             regs.CCR[channel].modify(.{
                 .CCR = duty,
@@ -66,7 +66,7 @@ pub const Advanced = struct {
                 .UG = 1,
             });
             regs.BDTR.raw |= 1 << 15; // MOE
-            gpio.set_reg_value(u4, &regs.CCER.raw, 0b0001, channel);
+            gpio.setRegValue(u4, &regs.CCER.raw, 0b0001, channel);
         } else {
             // TODO: Other channels
         }
