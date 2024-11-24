@@ -31,6 +31,22 @@ pub const ADC = enum(u2) {
         /// Temperature sensor can only be accessed through ADC1_IN18, VBAT can be connected to any channel.
         ADC1_IN18,
     };
+    const Resolution = enum(u2) {
+        @"12bit" = 0,
+        @"10bit" = 1,
+        @"8bit" = 2,
+        @"6bit" = 3,
+    };
+    const SamplingTime = enum(u3) {
+        @"3",
+        @"15",
+        @"28",
+        @"56",
+        @"84",
+        @"112",
+        @"144",
+        @"480",
+    };
 
     pub const ADC1 = peripherals.ADC1;
     pub const ADC2 = peripherals.ADC2;
@@ -78,6 +94,12 @@ pub const ADC = enum(u2) {
             regs.SQR3.modify(.{ .SQ = @intFromEnum(channel) }); // 1st conversion is channel
         }
     }
+    pub fn setResolution(adc: ADC, res: Resolution) void {
+        adc.getRegs().CR1.modify(.{ .RES = res });
+    }
+    pub fn getResolution(adc: ADC) Resolution {
+        return @enumFromInt(return adc.getRegs().CR1.read().RES);
+    }
 
     pub fn convert(adc: ADC) u16 {
         const regs = adc.getRegs();
@@ -110,5 +132,9 @@ pub const ADC = enum(u2) {
         }
         regs.CR2.modify(.{ .EOCS = old_eocs });
         return ret;
+    }
+    pub fn setDMA(adc: ADC, enable: bool) void {
+        adc.getRegs().CR2.modify(.{ .DMA = @intFromBool(enable) });
+        // adc.getRegs().
     }
 };
